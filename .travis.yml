@@ -4,6 +4,6 @@ deploy:
   provider: heroku
   api_key:
     secure: hZ7CISuAgrMthWGCSjUTI8XyY6taSdB0llbEhnrs1WY20+TRvButJs/gCmMJ796/nHcAEnckYH8C4W6vfwU4b3V62qg2xNikQpZOMgGQ7UpoYNGWiYHasyjU+TESGCDUygCtAkSxpil5DGf5dzydijngbV9TuhMVFqE+FQXsr1FdnecO3QbYLZeCP1AqqeehA5I5wcuErn0l4QEizFQuMdrPrieGeZYkeCIe1R2oBno+LQJMPGtUWDyv6IO7vo9T84VxSFB8df+/smmA42iTzr/tu8C4N7Q0PkiTpId0xHZxwG9EYB7tyIZCVEXsXuPzkgp1brxImuJptG5SXteK1uNBeQMtPrBLql802FoW1CoJRxi+xL500H6H1DQ8p90twGeMIe6lWjLXUdaq9vZLjLRX9t+MKKz/Za56oDpVSfq6RJfj3iKwefF65fOqQSpAoxrfuDBxMPC15/cNKR3GOhAMsNR0v0sLvYh/FQ/XSeR7iMudHa4oqxahf3rOrV4w2mnLFehnmiKQhFAxC8PhOwFRd4smc5uvGFHeZ8vNv/CUdzvGJbc8djn2yXELsszddkXZhRwOR+PIzxGX1rSETgpesSoTgiat8XAUpnwf8Pai1nj61Ya1218BfrGWp6eDgNB6dA1hSNSueyd/wppZwqUA3SuC4sdemuVmKTgKGvE=
-  app: 
+  app: lit-plateau-72065
   on:
-    repo:
+    repo: mws970/stacks-app-server
