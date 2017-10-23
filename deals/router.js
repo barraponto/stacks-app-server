@@ -15,6 +15,12 @@ router.get('/:id', (req, res) => {
   .then(deal => res.status(201).json(deal.apiPopulateRepr()));
 });
 
+//GET Router (by deal id)
+router.get('/merchant', (req, res) => {
+  Deal.find({user: req.user.id})
+  .then(deals => res.json({deals: deals.map((deal) => deal.apiRepr())}));
+});
+
 // GET Router
 router.get('/', (req, res) => {
   //Checks that requests have valid keys
@@ -40,7 +46,7 @@ router.get('/', (req, res) => {
 
     Deal
       .find(searchCriteria)  //Accepts the variable above to filter search results
-      .populate('merchantId')
+      .populate('merchant')
       .limit()
       .then(deals => {
       	res.json({deals: deals.map((deal) => deal.apiPopulateRepr())});

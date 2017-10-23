@@ -12,7 +12,7 @@ const jsonParser = bodyParser.json();
 //For POST should we require JWT token?
 
 //POST Router
-router.post('/', jsonParser, passport.authenticate('jwt', {session: false}), (req, res) => {
+router.post('/', jsonParser, (req, res) => {
     const requiredFields = ['name', 'type', 'logo', 'address', 'tel', 'lat', 'lng'];
     const missingField = requiredFields.find(field => !(field in req.body));
 
@@ -27,7 +27,7 @@ router.post('/', jsonParser, passport.authenticate('jwt', {session: false}), (re
 
     Merchant.create({
         name: req.body.name,
-        user: req.user.id,
+        user: req.body.user,
         type: req.body.type, 
         logo: req.body.logo,
         address: req.body.address,
@@ -44,8 +44,8 @@ router.post('/', jsonParser, passport.authenticate('jwt', {session: false}), (re
 });
 
 //GET Router
-router.get('/:id', passport.authenticate('jwt', {session: false}), (req, res) => {
-  Merchant.find({_id: req.params.id, user: req.user.id})
+router.get('/', passport.authenticate('jwt', {session: false}), (req, res) => {
+  Merchant.find({user: req.user.id})
   .then(merchant => res.status(201).json(merchant.apiRepr()));
 });
 

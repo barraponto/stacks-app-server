@@ -98,41 +98,39 @@ router.post('/', jsonParser, (req, res) => {
     firstName = firstName.trim();
     lastName = lastName.trim();
 
-    return User.find({email})
-        .count()
-        .then(count => {
-            if (count > 0) {
+    return User.find({email: email})
+    .count()
+    .then(count => {
+        if (count > 0) {
                 // There is an existing user with the same email
-                return Promise.reject({
+            return Promise.reject({
                     code: 422,
                     reason: 'ValidationError',
                     message: 'email already taken',
                     location: 'email'
-                });
-            }
-            // If there is no existing user, hash the password
-            return User.hashPassword(password);
-        })
-        .then(hash => {
-            return User.create({
-                email,
-                password: hash,
-                firstName,
-                lastName,
-                dob
             });
-        })
-        .then(user => {
-            return res.status(201).json(user.apiRepr());
-        })
-        .catch(err => {
-            // Forward validation errors on to the client, otherwise give a 500
-            // error because something unexpected has happened
-            if (err.reason === 'ValidationError') {
-                return res.status(err.code).json(err);
-            }
-            res.status(500).json({code: 500, message: 'Internal server error'});
+        }
+        // If there is no existing user, hash the password
+        return User.hashPassword(password);
+    }).then(hash => {
+        return User.create({
+            email,
+            password: hash,
+            firstName,
+            lastName,
+            dob,
+            merchant: req.body.merchant || false
         });
+    }).then(user => {
+        return res.status(201).json(user);
+    }).catch(err => {
+        // Forward validation errors on to the client, otherwise give a 500
+        // error because something unexpected has happened
+        if (err.reason === 'ValidationError') {
+            return res.status(err.code).json(err);
+        }
+        res.status(500).json({code: 500, message: 'Internal server error'});
+    });
 });
 
 //PUT Router (update user info)
@@ -205,5 +203,6 @@ router.put('/redeemed/add/:id', passport.authenticate('jwt', {session: false}), 
       res.status(401).json({message: 'Cannot update redeemed deals'});
     });
 });
+
 
 module.exports = {router};

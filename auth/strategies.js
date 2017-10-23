@@ -5,8 +5,8 @@ const {Strategy: JwtStrategy, ExtractJwt} = require('passport-jwt');
 const {User} = require('../users/models');
 const {JWT_SECRET} = require('../config');
 
-const basicStrategy = new BasicStrategy((email, password, done) => {
-     User.findOne({email: email}, function (err, user) {
+const basicStrategy = new BasicStrategy((user, password, done) => {
+     User.findOne({email: user}, function (err, user) {
       if (err) { return done(err); }
       if (!user) { return done(null, false); }
       user.validatePassword(password)
