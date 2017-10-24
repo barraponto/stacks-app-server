@@ -16,8 +16,8 @@ router.get('/:id', (req, res) => {
 });
 
 //GET Router (by deal id)
-router.get('/merchant', (req, res) => {
-  Deal.find({user: req.user.id})
+router.get('/merchant/:id', passport.authenticate('jwt', {session: false}), (req, res) => {
+  Deal.find({merchant: req.params.id})
   .then(deals => res.json({deals: deals.map((deal) => deal.apiRepr())}));
 });
 
@@ -69,9 +69,6 @@ router.post('/', passport.authenticate('jwt', {session: false}), (req, res) => {
       return res.status(400).send(message);
     };
   }
-
-  console.log(req.body);
-
   Deal.create({
     name: req.body.name,
     description: req.body.description,
@@ -89,7 +86,7 @@ router.post('/', passport.authenticate('jwt', {session: false}), (req, res) => {
 //PUT Router
 router.put('/:id', passport.authenticate('jwt', {session: false}), (req, res) => {
   //Checks that only certain fields are submitted
-  const allowedFields = ['name', 'description', 'barcode'];
+  const allowedFields = ['name', 'description', 'barcode', 'merchant', 'id'];
   for (field in req.body) {
     if (!(allowedFields.includes(field))) {
         const message = `Invalid ${field} field in request body`;
@@ -98,8 +95,11 @@ router.put('/:id', passport.authenticate('jwt', {session: false}), (req, res) =>
     };
   }
 
+  const {name, description, barcode} = req.body;
+  const updatedFields = {name, description, barcode};
+
   Deal.findOneAndUpdate({_id: req.params.id, merchant: req.body.merchant},
-      {$set: req.body}, {new: true})
+      {$set: updatedFields}, {new: true})
   .then(deal => res.status(201).json(deal.apiRepr())
   ).catch(err => {
       console.error(err);
@@ -110,13 +110,13 @@ router.put('/:id', passport.authenticate('jwt', {session: false}), (req, res) =>
 
 //DELETE Router
 router.delete('/:id', passport.authenticate('jwt', {session: false}), (req, res) => {
-  Deal.findOneAndRemove({_id: req.params.id, merchant: req.body.merchant})
+  Deal.findOneAndRemove({_id: req.params.id, merchant: req.body.id})
   .then(deal => {
     if(deal) {
-      res.status(204).json({message: 'Removed from database'});
+      res.json({message: 'Removed from database'}).status(204);
     }
     else {
-      res.status(401).json({message: 'Cannot delete deal'});
+      res.json({message: 'Cannot delete deal'}).status(401);
     }
   }).catch(err => {
     console.error(err);

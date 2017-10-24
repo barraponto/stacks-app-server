@@ -45,8 +45,12 @@ router.post('/', jsonParser, (req, res) => {
 
 //GET Router
 router.get('/', passport.authenticate('jwt', {session: false}), (req, res) => {
-  Merchant.find({user: req.user.id})
-  .then(merchant => res.status(201).json(merchant.apiRepr()));
+  Merchant.findOne({user: req.user.id})
+  .then(merchant => res.status(201).json(merchant.apiRepr()))
+  .catch(err => {
+      console.error(err);
+      res.status(500).json({message: 'Internal server error'});
+  }); 
 });
 
 //PUT Router
