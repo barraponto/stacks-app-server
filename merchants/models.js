@@ -4,7 +4,7 @@ const merchantSchema = mongoose.Schema({
     name: {type: String, required: true},
     user: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
     type: {type: String, required: true}, 
-    logo: {type: String, required: true},
+    logo: {type: String, default: ''},
     address: {type: String, required: true},
     tel: {type: String, required: false},
     lat: {type: Number, required: true},

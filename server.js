@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const axios = require('axios');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const passport = require('passport');
@@ -46,6 +47,11 @@ const {router: merchantsRouter} = require('./merchants/router');
 app.use('/merchants', merchantsRouter);
 
 //Routing
+app.use('/mapapi', (req, res) => {
+  axios.get('https://maps.googleapis.com/maps/api/js?key=AIzaSyDwl8AK9K-T03AnIEtQlgxVYlYsZD73tMU&libraries=places')
+  .then((script) => res.send(script.data));
+});
+
 app.use('*', (req, res) => {
     return res.status(404).json({message: 'Not Found'});
 });

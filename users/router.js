@@ -134,7 +134,7 @@ router.post('/', jsonParser, (req, res) => {
 });
 
 //PUT Router (update user info)
-router.put('/:id', passport.authenticate('jwt', {session: false}), (req, res) => {
+router.put('/', passport.authenticate('jwt', {session: false}), (req, res) => {
   const allowedFields = ['email', 'firstName', 'lastName'];
   for (field in req.body) {
     if (!(allowedFields.includes(field))) {
@@ -144,7 +144,7 @@ router.put('/:id', passport.authenticate('jwt', {session: false}), (req, res) =>
     };
   }
 
-    User.findOneAndUpdate({_id: req.params.id},
+    User.findOneAndUpdate({_id: req.user.id},
       {$set: req.body}, {new: true})
     .then(user => res.status(201).json(user.apiRepr())
     ).catch(err => {
@@ -154,13 +154,13 @@ router.put('/:id', passport.authenticate('jwt', {session: false}), (req, res) =>
 });
 
 //PUT Router (add deals to user)
-router.put('/deals/add/:id', passport.authenticate('jwt', {session: false}), (req, res) => {
+router.put('/add/:id', passport.authenticate('jwt', {session: false}), (req, res) => {
 
-    User.find({_id: req.user.id}
-    ).then(user => {
-        let deals;
-        if(user[0].deals) {deals = [...user[0].deals, req.params.id];}
-        else {deals = [req.params.id];}
+    User.findById(req.user.id)
+    .then(user => {
+
+        let userDeals = user.deals.filter(deal => deal.toString() !== req.params.id);
+        let deals = [...userDeals, req.params.id];
 
         return User.findOneAndUpdate({_id: req.user.id}, {$set: {deals: deals}}, {new: true})
     }).then(user => res.status(201).json(user.apiRepr())
@@ -171,16 +171,18 @@ router.put('/deals/add/:id', passport.authenticate('jwt', {session: false}), (re
 });
 
 //PUT Router (remove deals from user)
-router.delete('/deals/delete/:id', passport.authenticate('jwt', {session: false}), (req, res) => {
+router.delete('/delete/:id', passport.authenticate('jwt', {session: false}), (req, res) => {
 
-    User.find({_id: req.user.id}
-    ).then(user => {
-        let deals;
-        if(user[0].deals) {deals = user[0].deals.filter(deal => deal !== req.params.id)}
-        else {deals = [''];}
+    User.findById(req.user.id)
+    .then(user => {
+        const deals = user.deals.filter(deal => deal.toString() !== req.params.id);
 
-        return User.findOneAndUpdate({_id: req.user.id}, {$set: {deals: deals}}, {new: true})
-    }).then(user => res.status(201).json(user.apiRepr())
+        const userDeletedDeals = user.deletedDeals.filter(deal => deal.toString() !== req.params.id);
+        const deletedDeals = [...userDeletedDeals, req.params.id];
+
+        return User.findOneAndUpdate({_id: req.user.id}, {$set: {deals: deals, deletedDeals: deletedDeals}}, {new: true})
+
+    }).then(user => res.status(200).json(user.apiRepr())
     ).catch(err => {
       console.error(err);
       res.status(401).json({message: 'Cannot update deals'});
@@ -188,21 +190,29 @@ router.delete('/deals/delete/:id', passport.authenticate('jwt', {session: false}
 });
 
 //PUT Router (add deals to redeemed deals)
-router.put('/redeemed/add/:id', passport.authenticate('jwt', {session: false}), (req, res) => {
+router.put('/redeem/:id', passport.authenticate('jwt', {session: false}), (req, res) => {
 
-    User.find({_id: req.user.id}
-    ).then(user => {
-        let deals;
-        if(user[0].redeemedDeals) {deals = [...user[0].redeemedDeals, req.params.id];}
-        else {deals = [req.params.id];}
+    User.findById(req.user.id)
+    .then(user => {
+        const deals = user.deals.filter(deal => deal.toString() !== req.params.id);
 
-        return User.findOneAndUpdate({_id: req.user.id}, {$set: {redeemedDeals: deals}}, {new: true})
+        const userRedeemedDeals = user.redeemedDeals.filter(deal => deal.toString() !== req.params.id);
+        const redeemedDeals = [...userRedeemedDeals, req.params.id];
+
+        return User.findOneAndUpdate({_id: req.user.id}, {$set: {deals: deals, redeemedDeals: redeemedDeals}}, {new: true})
     }).then(user => res.status(201).json(user.apiRepr())
     ).catch(err => {
       console.error(err);
       res.status(401).json({message: 'Cannot update redeemed deals'});
     });
 });
+
+//GET Router
+router.get('/deals/', passport.authenticate('jwt', {session: false}), (req, res) => {
+  User.findById(req.user.id).populate('deals')
+  .then(user => res.json({deals: user.deals.map(deal => deal.apiPopulateRepr())}));
+});
+
 
 
 module.exports = {router};

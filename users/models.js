@@ -12,7 +12,8 @@ const UserSchema = mongoose.Schema({
     merchant: {type: Boolean, default: false},
     joinedOn: {type: Date, default: Date.now()},
     deals: [{type: mongoose.Schema.Types.ObjectId, ref: 'Deal'}],
-    redeemedDeals: [{type: mongoose.Schema.Types.ObjectId, ref: 'Deal'}]
+    redeemedDeals: [{type: mongoose.Schema.Types.ObjectId, ref: 'Deal'}],
+    deletedDeals: [{type: mongoose.Schema.Types.ObjectId, ref: 'Deal'}]
 });
 
 

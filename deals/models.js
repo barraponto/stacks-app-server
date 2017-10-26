@@ -4,6 +4,7 @@ const dealSchema = mongoose.Schema({
     name: {type: String, required: true},
     description: {type: String, required: true},
     barcode: {type: String, required: false},
+    active: {type: Boolean, default: true},
     publishedAt: {type: Date, required: false},
     merchant: {type: mongoose.Schema.Types.ObjectId, ref: 'Merchant'}
 });
@@ -13,7 +14,8 @@ dealSchema.methods.apiRepr = function() {
     id: this._id,
     name: this.name,
     description: this.description,
-    barcode: this.barcode
+    barcode: this.barcode,
+    active: this.active
   };
 }
 
@@ -28,6 +30,7 @@ dealSchema.methods.apiPopulateRepr = function() {
     address: this.merchant.address,
     tel: this.merchant.tel,
     barcode: this.barcode,
+    active: this.active,
     lat: this.merchant.lat,
     lng: this.merchant.lng
   };
