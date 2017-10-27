@@ -11,7 +11,7 @@ const router = express.Router();
 const jsonParser = bodyParser.json();
 
 aws.config.region = 'eu-west-1';
-const S3_BUCKET = process.env.S3_BUCKET;
+const S3_BUCKET_NAME = process.env.S3_BUCKET_NAME;
 
 //POST Router
 router.post('/', jsonParser, (req, res) => {
@@ -141,7 +141,7 @@ router.get('/', passport.authenticate('jwt', {session: false}), (req, res) => {
   .catch(err => {
       console.error(err);
       res.status(500).json({message: 'Internal server error'});
-  }); 
+  });
 });
 
 //PUT Router
@@ -186,7 +186,7 @@ router.get('/sign-s3', (req, res) => {
   const fileName = req.query['file-name'];
   const fileType = req.query['file-type'];
   const s3Params = {
-    Bucket: S3_BUCKET,
+    Bucket: S3_BUCKET_NAME,
     Key: fileName,
     Expires: 60,
     ContentType: fileType,
@@ -196,14 +196,13 @@ router.get('/sign-s3', (req, res) => {
   s3.getSignedUrl('putObject', s3Params, (err, data) => {
     if(err){
       console.log(err);
-      return res.end();
+      return res.sendStatus(500);
     }
     const returnData = {
       signedRequest: data,
-      url: `https://${S3_BUCKET}.s3.amazonaws.com/${fileName}`
+      url: `https://${S3_BUCKET_NAME}.s3.amazonaws.com/${fileName}`
     };
-    res.write(JSON.stringify(returnData));
-    res.end();
+    res.json(returnData);
   });
 });
 
