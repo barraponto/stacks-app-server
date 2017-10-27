@@ -146,7 +146,7 @@ router.get('/', passport.authenticate('jwt', {session: false}), (req, res) => {
 
 //PUT Router
 router.put('/:id', passport.authenticate('jwt', {session: false}), (req, res) => {
-  const allowedFields = ['name', 'type', 'logo', 'address', 'tel', 'lat', 'lng'];
+  const allowedFields = ['name', 'type', 'email', 'logo', 'address', 'tel', 'lat', 'lng'];
   for (field in req.body) {
     if (!(allowedFields.includes(field))) {
         const message = `Invalid ${field} field in request body`;
@@ -155,8 +155,25 @@ router.put('/:id', passport.authenticate('jwt', {session: false}), (req, res) =>
     };
   }
 
-  Merchant.findOneAndUpdate({_id: req.params.id, user: req.user.id}, {$set: req.body}, {new: true})
-  .then(merchant => res.status(201).json(merchant.apiRepr())
+  const merchantKeys = Object.keys(req.body).filter(key => key !== 'email');
+  let merchantUpdate = {};
+
+  for (index in merchantKeys) {
+    merchantUpdate[merchantKeys[index]] = req.body[merchantKeys[index]];
+  }
+
+  let merchant;
+  if (merchantKeys.length > 0) {
+    merchant = Merchant.findOneAndUpdate({_id: req.params.id, user: req.user.id}, {$set: merchantUpdate}, {new: true});
+  }
+
+  let user;
+  if (req.body.email) {
+    user = User.findOneAndUpdate({_id: req.user.id}, {$set: {email: req.body.email}}, {new: true});
+  }
+
+  return Promise.all([merchant, user])
+  .then(([merchant, user]) => res.status(201).json(merchant.apiRepr())
   ).catch(err => {
       console.error(err);
       res.status(401).json({message: 'Cannot update merchant'});

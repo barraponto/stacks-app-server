@@ -51,7 +51,17 @@ router.get('/', passport.authenticate('jwt', {session: false}), (req, res) => {
         && deal.active
       );
 
-      res.json({deals: resDeals.map((deal) => deal.apiPopulateRepr())});
+    if (lat !== undefined && lng !== undefined) {
+      function sortByLocation(a, b) {
+        if ((Math.abs(a.merchant.lat - lat) + Math.abs(a.merchant.lng - lng)) < (Math.abs(b.merchant.lat - lat) + Math.abs(b.merchant.lng - lng))) {
+          return -1
+        }
+        else {return 1}
+      };
+      resDeals.sort(sortByLocation)
+    };
+
+    res.json({deals: resDeals.map((deal) => deal.apiPopulateRepr())});
     })
     .catch(err => {
       console.error(err);
